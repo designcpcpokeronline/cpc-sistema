@@ -103,6 +103,7 @@ select option{background:var(--bg3)}
   <div class="sb-item" onclick="nav('anuncio',this)"><span class="sb-dot"></span>Anuncio</div>
   <div class="sb-item" onclick="nav('finalizar',this)"><span class="sb-dot"></span>Finalizar Post</div>
   <div class="sb-item" onclick="nav('imagem',this)"><span class="sb-dot"></span>Imagens</div>
+  <div class="sb-item" onclick="nav('visual',this)"><span class="sb-dot"></span>Gerar Visual</div>
   <div class="sb-grp">Planejamento</div>
   <div class="sb-item" onclick="nav('ideias',this)"><span class="sb-dot"></span>Banco de Ideias</div>
   <div class="sb-item" onclick="nav('calendario',this)"><span class="sb-dot"></span>Calendario</div>
@@ -659,6 +660,76 @@ select option{background:var(--bg3)}
   </div>
 </div>
 
+
+<!-- GERAR VISUAL -->
+<div id="p-visual" class="panel">
+  <div class="pg-h">Gerar Visual</div>
+  <div class="pg-s">Descreva sua ideia visual — o sistema gera a imagem no estilo CPC usando Gemini Imagen. Vermelho predominante, sempre.</div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="clabel">Configurar visual</div>
+        <label>Formato</label>
+        <select id="vis-fmt">
+          <option value="1:1">Feed quadrado 1:1</option>
+          <option value="9:16">Story vertical 9:16</option>
+          <option value="4:5">Carrossel 4:5</option>
+          <option value="16:9">Capa YouTube 16:9</option>
+        </select>
+        <label>Estilo visual</label>
+        <select id="vis-estilo">
+          <option value="humano">Figura humana — pessoa real, ambiente autentico</option>
+          <option value="minimalista">Minimalista — elemento unico, espaco negativo</option>
+          <option value="tipografico">Tipografico — texto como elemento visual</option>
+          <option value="poker">Elementos de poker — fichas, cartas, naipes</option>
+          <option value="urbano">Urbano — cidade a noite, luzes, movimento</option>
+        </select>
+        <label>Descreva o que voce quer</label>
+        <textarea id="vis-ideia" style="height:90px" placeholder="Ex: pessoa focada jogando no celular a noite, luz vermelha lateral, fundo escuro, ambiente real e intimo..."></textarea>
+        <label>Contexto CPC (opcional)</label>
+        <input id="vis-ctx" type="text" placeholder="Ex: satelite KSOP, motivacional, comunidade...">
+        <label>Elementos a evitar</label>
+        <input id="vis-evitar" type="text" placeholder="Ex: casino fisico, renders artificiais, poker ao vivo...">
+        <button class="btn btn-r btn-full" id="vis-btn" onclick="gerarVisual()">GERAR IMAGEM</button>
+      </div>
+      <div class="card">
+        <div class="clabel">Prompt gerado</div>
+        <div class="out" id="vis-prompt" style="min-height:80px"><span class="ph">O prompt enviado para geracao aparecera aqui.</span></div>
+        <div class="out-act" id="vis-prompt-act" style="display:none">
+          <button class="btn btn-g" onclick="cp('vis-prompt')">COPIAR PROMPT</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="min-height:400px;display:flex;flex-direction:column">
+        <div class="clabel">Imagem gerada</div>
+        <div id="vis-loading" style="display:none;padding:40px;text-align:center">
+          <div style="font-size:12px;color:var(--w3);font-style:italic;animation:pulse 1.2s infinite">Gerando imagem com Gemini...</div>
+          <div style="margin-top:12px;font-size:10px;color:var(--w4)">Pode levar 10-20 segundos</div>
+        </div>
+        <div id="vis-result" style="flex:1;display:flex;align-items:center;justify-content:center;min-height:300px">
+          <span class="ph" style="text-align:center">A imagem gerada aparecera aqui.<br><br>Clique em Gerar Imagem para comecar.</span>
+        </div>
+        <div id="vis-actions" style="display:none;margin-top:10px">
+          <div class="out-act">
+            <button class="btn btn-g" onclick="downloadImg()">BAIXAR IMAGEM</button>
+            <button class="btn btn-g" onclick="gerarVisual()">GERAR NOVA VERSAO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px">
+    <div class="card">
+      <div class="clabel">Galeria de gerados</div>
+      <div id="vis-galeria" style="display:flex;flex-wrap:wrap;gap:10px;min-height:40px">
+        <span class="ph" style="font-size:11px">Imagens geradas nesta sessao apareceram aqui.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
 </div>
 <div class="notif" id="notif"></div>
@@ -1160,6 +1231,110 @@ function finalizarPost() {
     out += `\n\nDICA FINAL:\n${mel[0]}`;
     setOut("fin-out", out, "fin-act");
   }, 350);
+}
+
+
+let _visImgData = null;
+
+async function gerarVisual() {
+  const fmt = document.getElementById("vis-fmt").value;
+  const estilo = document.getElementById("vis-estilo").value;
+  const ideia = document.getElementById("vis-ideia").value;
+  const ctx = document.getElementById("vis-ctx").value;
+  const evitar = document.getElementById("vis-evitar").value;
+
+  if(!ideia) { notif("Descreva o que voce quer gerar"); return; }
+
+  const estiloDesc = {
+    humano: "photorealistic, authentic human figure, real person, candid atmosphere, cinematic lighting",
+    minimalista: "minimalist composition, single element centered, extreme negative space, graphic design",
+    tipografico: "typographic design, bold text as visual element, editorial style",
+    poker: "poker chips and cards as graphic elements, dark premium aesthetic, no live casino",
+    urbano: "urban nightscape, city lights bokeh, street atmosphere, cinematic"
+  }[estilo] || "photorealistic, cinematic";
+
+  const aspectMap = {"1:1":"1:1","9:16":"9:16","4:5":"4:5","16:9":"16:9"};
+  const aspect = aspectMap[fmt] || "1:1";
+
+  const prompt = `${ideia}. Style: ${estiloDesc}. Color palette: deep red #CC0000 predominant, pure black background, white accents. ${ctx ? "Context: "+ctx+". " : ""}Premium, clean, strong visual. ${evitar ? "Avoid: "+evitar+"." : "Avoid: live casino, artificial renders, generic stock photo look, showing phone screens or apps."} Aspect ratio ${aspect}, high quality, editorial photography style.`;
+
+  // Show prompt
+  document.getElementById("vis-prompt").innerHTML = prompt;
+  document.getElementById("vis-prompt-act").style.display = "flex";
+
+  // Show loading
+  document.getElementById("vis-loading").style.display = "block";
+  document.getElementById("vis-result").style.display = "none";
+  document.getElementById("vis-actions").style.display = "none";
+  document.getElementById("vis-btn").disabled = true;
+
+  try {
+    const key = "AIzaSyDEWRlz4pFTTv5mFxOqTgGK2zER3FLzszc";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${key}`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        instances: [{ prompt: prompt }],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: aspect,
+          safetyFilterLevel: "block_few",
+          personGeneration: "allow_adult"
+        }
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.error) throw new Error(data.error.message);
+
+    const b64 = data.predictions?.[0]?.bytesBase64Encoded;
+    if(!b64) throw new Error("Nenhuma imagem retornada");
+
+    _visImgData = "data:image/png;base64," + b64;
+
+    document.getElementById("vis-result").innerHTML = `<img src="${_visImgData}" style="max-width:100%;max-height:500px;border-radius:var(--r2);display:block;margin:0 auto">`;
+    document.getElementById("vis-result").style.display = "flex";
+    document.getElementById("vis-actions").style.display = "block";
+
+    // Add to gallery
+    const gal = document.getElementById("vis-galeria");
+    if(gal.querySelector(".ph")) gal.innerHTML = "";
+    const thumb = document.createElement("div");
+    thumb.style.cssText = "position:relative;width:80px;height:80px;border-radius:var(--r);overflow:hidden;border:1px solid var(--bd);cursor:pointer";
+    thumb.innerHTML = `<img src="${_visImgData}" style="width:100%;height:100%;object-fit:cover" onclick="document.getElementById('vis-result').innerHTML='<img src=${_visImgData} style=max-width:100%;max-height:500px;border-radius:var(--r2);display:block;margin:0 auto>';document.getElementById('vis-result').style.display='flex';document.getElementById('vis-actions').style.display='block'">`;
+    gal.appendChild(thumb);
+
+    notif("Imagem gerada!");
+
+  } catch(e) {
+    // Fallback: show prompt for use in external tool
+    document.getElementById("vis-result").style.display = "flex";
+    document.getElementById("vis-result").innerHTML = `
+      <div style="text-align:center;padding:20px">
+        <div style="font-size:13px;color:var(--red);margin-bottom:12px">Gemini Imagen nao disponivel nesta chave.</div>
+        <div style="font-size:12px;color:var(--w2);line-height:1.7;margin-bottom:16px">Use o prompt gerado ao lado em um desses geradores gratuitos:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="https://ideogram.ai" target="_blank" style="color:var(--red);font-size:12px;text-decoration:none;border:1px solid var(--bd2);padding:8px 16px;border-radius:var(--r)">→ Ideogram.ai (gratuito)</a>
+          <a href="https://leonardo.ai" target="_blank" style="color:var(--red);font-size:12px;text-decoration:none;border:1px solid var(--bd2);padding:8px 16px;border-radius:var(--r)">→ Leonardo.ai (gratuito)</a>
+          <a href="https://www.canva.com/ai-image-generator/" target="_blank" style="color:var(--red);font-size:12px;text-decoration:none;border:1px solid var(--bd2);padding:8px 16px;border-radius:var(--r)">→ Canva IA (no plano)</a>
+          <a href="https://copilot.microsoft.com" target="_blank" style="color:var(--red);font-size:12px;text-decoration:none;border:1px solid var(--bd2);padding:8px 16px;border-radius:var(--r)">→ Microsoft Copilot (gratuito)</a>
+        </div>
+      </div>`;
+  } finally {
+    document.getElementById("vis-loading").style.display = "none";
+    document.getElementById("vis-btn").disabled = false;
+  }
+}
+
+function downloadImg() {
+  if(!_visImgData) return;
+  const a = document.createElement("a");
+  a.href = _visImgData;
+  a.download = "cpc_visual_" + Date.now() + ".png";
+  a.click();
 }
 
 // INIT
