@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPC — Sistema Criativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#CC0000;--red-b:#ff2020;--bg:#0D0D0D;--bg2:#141414;--bg3:#1C1C1C;--bg4:#242424;--w:#F2EDE8;--w2:#B8B0A8;--w3:#635D58;--w4:#363130;--bd:rgba(242,237,232,.07);--bd2:rgba(242,237,232,.14);--r:6px;--r2:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;overflow:hidden}
+.app{display:flex;height:100vh}
+.sb{width:192px;min-width:192px;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sb-logo{padding:20px 16px 15px;border-bottom:1px solid var(--bd)}
+.sb-cpc{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--red);letter-spacing:3px;line-height:1}
+.sb-tag{font-size:9px;color:var(--w3);letter-spacing:.16em;text-transform:uppercase;margin-top:2px}
+.sb-grp{padding:13px 16px 3px;font-size:9px;color:var(--w4);letter-spacing:.16em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:12px;color:var(--w3);border-left:2px solid transparent;transition:all .12s}
+.sb-item:hover{color:var(--w);background:rgba(255,255,255,.03)}
+.sb-item.on{color:var(--w);border-left-color:var(--red);background:rgba(204,0,0,.07)}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.35}
+.sb-item.on .sb-dot{opacity:1;background:var(--red)}
+.sb-foot{margin-top:auto;padding:11px 16px;border-top:1px solid var(--bd);font-size:9px;color:var(--w4);line-height:1.7}
+.main{flex:1;overflow-y:auto}
+.panel{display:none;padding:28px 32px 50px}
+.panel.on{display:block}
+.pg-h{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:1;margin-bottom:3px}
+.pg-s{font-size:12px;color:var(--w3);margin-bottom:22px;line-height:1.5}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px}
+.clabel{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--w3);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.clabel::after{content:'';flex:1;height:1px;background:var(--bd)}
+label{font-size:10px;color:var(--w3);letter-spacing:.09em;text-transform:uppercase;display:block;margin-bottom:4px;margin-top:10px}
+label:first-of-type{margin-top:0}
+input,textarea,select{width:100%;background:var(--bg3);border:1px solid var(--bd);color:var(--w);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border-radius:var(--r);outline:none;transition:border-color .12s}
+input:focus,textarea:focus,select:focus{border-color:var(--red)}
+textarea{resize:vertical;line-height:1.65}
+select option{background:var(--bg3)}
+.btn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:8px 15px;border:none;border-radius:var(--r);cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-r{background:var(--red);color:#fff}.btn-r:hover{background:var(--red-b)}
+.btn-g{background:transparent;border:1px solid var(--bd2);color:var(--w2)}.btn-g:hover{border-color:var(--red);color:var(--red)}
+.btn-full{width:100%;justify-content:center;margin-top:11px}
+.out{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);padding:14px 16px;min-height:90px;margin-top:11px;font-size:13px;line-height:1.85;color:var(--w);white-space:pre-wrap;word-break:break-word}
+.ph{color:var(--w4);font-style:italic;font-size:12px}
+.out-act{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--bg4);border:1px solid var(--bd);color:var(--w3);cursor:pointer;transition:all .12s;user-select:none}
+.tag.on{background:rgba(204,0,0,.15);border-color:var(--red);color:var(--red)}
+.tag:hover:not(.on){color:var(--w);border-color:var(--bd2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.itabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:15px}
+.itab{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 12px;border-radius:99px;border:1px solid var(--bd);background:transparent;color:var(--w3);cursor:pointer;transition:all .12s}
+.itab.on{background:var(--red);color:#fff;border-color:var(--red)}
+.itab:hover:not(.on){border-color:var(--bd2);color:var(--w)}
+.ipanel{display:none}.ipanel.on{display:block}
+.mem-item{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:9px 13px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start}
+.mem-cat{font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.mem-val{font-size:12px;color:var(--w2);line-height:1.5}
+.mem-del{color:var(--w4);cursor:pointer;font-size:17px;flex-shrink:0;line-height:1}.mem-del:hover{color:var(--red)}
+.inspo-zone{border:1px dashed var(--bd2);border-radius:var(--r2);padding:22px;text-align:center;cursor:pointer;transition:all .15s}
+.inspo-zone:hover{border-color:var(--red);background:rgba(204,0,0,.04)}
+.inspo-zone p{font-size:12px;color:var(--w3);margin-top:5px}
+.inspo-zone small{font-size:10px;color:var(--w4)}
+.inspo-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.inspo-item{position:relative;width:115px}
+.inspo-img{width:115px;height:115px;border-radius:var(--r);overflow:hidden;border:1px solid var(--bd)}
+.inspo-img img{width:100%;height:100%;object-fit:cover;display:block}
+.inspo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:99px;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s}
+.inspo-item:hover .inspo-del{opacity:1}
+.inspo-note{font-size:10px;color:var(--w3);margin-top:4px;text-align:center}
+.cal-wrap{border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden}
+.cal-head{display:grid;grid-template-columns:58px repeat(7,1fr);background:var(--bg3)}
+.cal-hc{padding:8px 4px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--w3);text-align:center;border-right:1px solid var(--bd)}
+.cal-hc:last-child{border-right:none}
+.cal-row{display:grid;grid-template-columns:58px repeat(7,1fr);border-top:1px solid var(--bd)}
+.cal-time{padding:6px 4px;font-size:9px;color:var(--w4);border-right:1px solid var(--bd);text-align:center;padding-top:8px}
+.cal-cell{padding:4px;border-right:1px solid var(--bd);min-height:44px}.cal-cell:last-child{border-right:none}
+.cal-ev{font-size:9px;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;line-height:1.4}
+.ev-s{background:rgba(204,0,0,.25);color:#ff9090}
+.ev-f{background:rgba(255,255,255,.07);color:var(--w2)}
+.ev-r{background:rgba(80,80,200,.2);color:#9898ff}
+.ev-c{background:rgba(80,180,80,.12);color:#80cc80}
+.ev-k{background:rgba(204,0,0,.4);color:#ffcccc}
+.voz-block{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);padding:15px 17px;margin-bottom:10px}
+.voz-h{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--red);letter-spacing:.06em;margin-bottom:7px}
+.voz-ex{font-size:13px;color:var(--w);font-style:italic;border-left:2px solid var(--red);padding-left:11px;margin-top:7px;line-height:1.7}
+.notif{position:fixed;bottom:18px;right:18px;background:var(--bg2);border:1px solid var(--red);border-radius:var(--r);padding:9px 16px;font-size:11px;color:var(--red);font-family:'Space Mono',monospace;z-index:999;transform:translateY(60px);transition:transform .2s;pointer-events:none}
+.notif.show{transform:translateY(0)}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.loading-txt{color:var(--w3);font-style:italic;font-size:12px;animation:pulse 1.2s infinite}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sb">
+  <div class="sb-logo"><div class="sb-cpc">CPC</div><div class="sb-tag">Sistema Criativo</div></div>
+  <div class="sb-grp">Criacao</div>
+  <div class="sb-item on" id="nav-gerador" onclick="navTo('gerador')"><span class="sb-dot"></span>Gerador</div>
+  <div class="sb-item" id="nav-stories" onclick="navTo('stories')"><span class="sb-dot"></span>Stories Diarios</div>
+  <div class="sb-item" id="nav-carrossel" onclick="navTo('carrossel')"><span class="sb-dot"></span>Carrossel</div>
+  <div class="sb-item" id="nav-canais" onclick="navTo('canais')"><span class="sb-dot"></span>Por Canal</div>
+  <div class="sb-item" id="nav-anuncio" onclick="navTo('anuncio')"><span class="sb-dot"></span>Anuncio</div>
+  <div class="sb-item" id="nav-finalizar" onclick="navTo('finalizar')"><span class="sb-dot"></span>Finalizar Post</div>
+  <div class="sb-item" id="nav-copa" onclick="navTo('copa')"><span class="sb-dot"></span>Copa x Poker</div>
+  <div class="sb-grp">Planejamento</div>
+  <div class="sb-item" id="nav-ideias" onclick="navTo('ideias')"><span class="sb-dot"></span>Banco de Ideias</div>
+  <div class="sb-item" id="nav-calendario" onclick="navTo('calendario')"><span class="sb-dot"></span>Calendario</div>
+  <div class="sb-item" id="nav-inspiracao" onclick="navTo('inspiracao')"><span class="sb-dot"></span>Referencias</div>
+  <div class="sb-grp">Marca</div>
+  <div class="sb-item" id="nav-memoria" onclick="navTo('memoria')"><span class="sb-dot"></span>Memoria CPC</div>
+  <div class="sb-item" id="nav-voz" onclick="navTo('voz')"><span class="sb-dot"></span>Voz da Marca</div>
+  <div class="sb-foot">
+    <div style="color:var(--red)">● Sistema ativo</div>
+    <div style="margin-top:3px">PPPoker · KSOP 2025</div>
+  </div>
+</aside>
+<main class="main">
+
+<div id="p-gerador" class="panel on">
+  <div class="pg-h">Gerador de Conteudo</div>
+  <div class="pg-s">Vermelho predominante. Sempre PPPoker. Sempre humano. As vezes minimalista.</div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="clabel">Configurar</div>
+        <label>Tipo</label>
+        <select id="g-tipo">
+          <option value="interacao">Interacao — pergunta, enquete, provocacao</option>
+          <option value="meme">Meme — humor com DNA CPC</option>
+          <option value="relevancia">Relevancia — momento cultural</option>
+          <option value="brand">Marca — conexao, lifestyle, proposito</option>
+          <option value="educativo">Educativo — poker online humanizado</option>
+          <option value="satelite">Satelite KSOP — beneficio, conquista, urgencia</option>
+          <option value="comunidade">Comunidade — jogadores, historias reais</option>
+        </select>
+        <label>Formato</label>
+        <select id="g-fmt">
+          <option value="feed">Post feed</option>
+          <option value="stories">Stories</option>
+          <option value="reels">Reels (roteiro)</option>
+          <option value="carrossel">Carrossel</option>
+        </select>
+        <label>Contexto ou ideia — descreva aqui</label>
+        <textarea id="g-ctx" style="height:70px" placeholder="Descreva sua ideia, tema ou contexto do post..."></textarea>
+        <label>Tom</label>
+        <div class="tags">
+          <span class="tag on" id="tom-direto" onclick="selTom('direto')">Direto</span>
+          <span class="tag" id="tom-humano" onclick="selTom('humano')">Humano</span>
+          <span class="tag" id="tom-provocativo" onclick="selTom('provocativo')">Provocativo</span>
+          <span class="tag" id="tom-aspiracional" onclick="selTom('aspiracional')">Aspiracional</span>
+          <span class="tag" id="tom-urgente" onclick="selTom('urgente')">Urgente</span>
+          <span class="tag" id="tom-minimalista" onclick="selTom('minimalista')">Minimalista</span>
+        </div>
+        <button class="btn btn-r btn-full" onclick="gerarPost()">GERAR CONTEUDO</button>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="clabel">Resultado</div>
+        <div class="out" id="g-out"><span class="ph">Configure e clique em gerar.</span></div>
+        <div class="out-act" id="g-act" style="display:none">
+          <button class="btn btn-g" onclick="cpEl('g-out')">COPIAR</button>
+          <button class="btn btn-g" onclick="gerarPost()">NOVA VERSAO</button>
+          <button class="btn btn-g" onclick="saveIdeia()">SALVAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-stories" class="panel">
+  <div class="pg-h">Stories Diarios</div>
+  <div class="pg-s">Modelo fixo CPC — fundo preto, fichas e cartas em vermelho. So mudam os textos.</div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="clabel">Configurar</div>
+        <label>Tema ou contexto do dia</label>
+        <input type="text" id="st-ctx" placeholder="Ex: evolucao, disciplina, satelite hoje...">
+        <label>Tom</label>
+        <select id="st-tom">
+          <option value="motivacional">Motivacional</option>
+          <option value="reflexivo">Reflexivo</option>
+          <option value="desafiador">Desafiador</option>
+          <option value="conquista">Conquista</option>
+          <option value="satelite">Satelite KSOP</option>
+        </select>
+        <label>Evento hoje (opcional)</label>
+        <input type="text" id="st-ev" placeholder="Ex: Satelite KSOP — R$70 — 20h PPPoker">
+        <label>Quantidade</label>
+        <select id="st-qtd"><option value="1">1 versao</option><option value="3" selected>3 versoes</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarStories()">GERAR STORIES</button>
+      </div>
+      <div class="card">
+        <div class="clabel">Modelo fixo</div>
+        <div style="font-size:11px;color:var(--w2);line-height:2.1">
+          <span style="color:var(--red)">HEADLINE</span> — 3 linhas: branco / VERMELHO / branco<br>
+          <span style="color:var(--red)">ICONE + APOIO</span> — icone + frase curta<br>
+          <span style="color:var(--red)">3 ICONES</span> — palavras-chave<br>
+          <span style="color:var(--red)">RODAPE</span> — naipes + frase vermelha
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clabel">Stories gerados</div>
+      <div class="out" id="st-out" style="min-height:200px"><span class="ph">Versoes do story prontas para o designer.</span></div>
+      <div class="out-act" id="st-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('st-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="gerarStories()">NOVA VERSAO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-carrossel" class="panel">
+  <div class="pg-h">Carrossel</div>
+  <div class="pg-s">Cada slide com instrucao de execucao para o designer. Uma legenda unica desenvolvida.</div>
+  <div class="g2">
+    <div class="card">
+      <div class="clabel">Configurar</div>
+      <label>Tema</label>
+      <input type="text" id="car-tema" placeholder="Ex: por que jogar satelite e mais inteligente que comprar vaga">
+      <label>Slides</label>
+      <select id="car-slides"><option value="5">5 slides</option><option value="7" selected>7 slides</option></select>
+      <label>Objetivo</label>
+      <select id="car-obj">
+        <option>Educar — poker online humanizado</option>
+        <option>Engajar — salvar e compartilhar</option>
+        <option>Converter — levar ao PPPoker</option>
+        <option>Satelite KSOP — beneficios e conquista</option>
+      </select>
+      <label>Estilo visual</label>
+      <select id="car-vis">
+        <option>Figura humana — pessoa real</option>
+        <option>Minimalista — tipografia espaco negativo</option>
+        <option>Misto</option>
+      </select>
+      <button class="btn btn-r btn-full" onclick="gerarCarrossel()">GERAR CARROSSEL</button>
+    </div>
+    <div class="card">
+      <div class="out" id="car-out" style="min-height:180px"><span class="ph">Slides completos com instrucao, headline, subtexto, rodape e legenda.</span></div>
+      <div class="out-act" id="car-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('car-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="gerarCarrossel()">NOVA VERSAO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-canais" class="panel">
+  <div class="pg-h">Por Canal</div>
+  <div class="pg-s">DNA CPC — linguagem certa para cada plataforma.</div>
+  <div class="itabs">
+    <button class="itab on" onclick="itabTo('canais','ig',this)">Instagram</button>
+    <button class="itab" onclick="itabTo('canais','rl',this)">Reels</button>
+    <button class="itab" onclick="itabTo('canais','tt',this)">TikTok</button>
+    <button class="itab" onclick="itabTo('canais','yt',this)">YouTube</button>
+    <button class="itab" onclick="itabTo('canais','li',this)">LinkedIn</button>
+  </div>
+  <div id="canais-ig" class="ipanel on">
+    <div class="g2">
+      <div class="card">
+        <label>Tema</label><input id="ig-t" type="text" placeholder="Ex: satelite KSOP, conexao, blefe...">
+        <label>Estilo</label><select id="ig-e"><option>Editorial</option><option>Informativo carrossel</option><option>Interacao comentarios</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarCanal('ig')">GERAR</button>
+      </div>
+      <div class="card"><div class="out" id="ig-out"><span class="ph">Legenda, prompt e hashtags.</span></div>
+        <div class="out-act" id="ig-act" style="display:none"><button class="btn btn-g" onclick="cpEl('ig-out')">COPIAR</button></div></div>
+    </div>
+  </div>
+  <div id="canais-rl" class="ipanel">
+    <div class="g2">
+      <div class="card">
+        <label>Gancho</label><input id="rl-t" type="text" placeholder="Ex: sensacao de cravar um torneio online...">
+        <label>Duracao</label><select id="rl-d"><option>15s</option><option selected>30s</option><option>60s</option></select>
+        <label>Estilo</label><select id="rl-e"><option>Humor meme</option><option>Motivacional</option><option>Educativo</option><option>Bastidores</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarCanal('rl')">GERAR ROTEIRO</button>
+      </div>
+      <div class="card"><div class="out" id="rl-out"><span class="ph">Roteiro com cenas e legenda.</span></div>
+        <div class="out-act" id="rl-act" style="display:none"><button class="btn btn-g" onclick="cpEl('rl-out')">COPIAR</button></div></div>
+    </div>
+  </div>
+  <div id="canais-tt" class="ipanel">
+    <div class="g2">
+      <div class="card">
+        <label>Gancho</label><input id="tt-t" type="text" placeholder="Ex: o que poker online ensina...">
+        <label>Formato</label><select id="tt-f"><option>Trend</option><option>Original CPC</option><option>Educativo</option><option>Humor</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarCanal('tt')">GERAR</button>
+      </div>
+      <div class="card"><div class="out" id="tt-out"><span class="ph">Roteiro e hashtags virais.</span></div>
+        <div class="out-act" id="tt-act" style="display:none"><button class="btn btn-g" onclick="cpEl('tt-out')">COPIAR</button></div></div>
+    </div>
+  </div>
+  <div id="canais-yt" class="ipanel">
+    <div class="g2">
+      <div class="card">
+        <label>Tema</label><input id="yt-t" type="text" placeholder="Ex: minha primeira vez num torneio online...">
+        <label>Formato</label><select id="yt-f"><option>Shorts</option><option>Video curto</option><option>Mini documentario</option><option>Vlog</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarCanal('yt')">GERAR</button>
+      </div>
+      <div class="card"><div class="out" id="yt-out"><span class="ph">Titulo, descricao e roteiro.</span></div>
+        <div class="out-act" id="yt-act" style="display:none"><button class="btn btn-g" onclick="cpEl('yt-out')">COPIAR</button></div></div>
+    </div>
+  </div>
+  <div id="canais-li" class="ipanel">
+    <div class="g2">
+      <div class="card">
+        <label>Tema</label><input id="li-t" type="text" placeholder="Ex: o que poker ensina sobre decisao...">
+        <label>Angulo</label><select id="li-a"><option>Reflexao</option><option>Lista insights</option><option>Historia real</option><option>Opiniao forte</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarCanal('li')">GERAR</button>
+      </div>
+      <div class="card"><div class="out" id="li-out"><span class="ph">Post profissional-humano CPC.</span></div>
+        <div class="out-act" id="li-act" style="display:none"><button class="btn btn-g" onclick="cpEl('li-out')">COPIAR</button></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="p-anuncio" class="panel">
+  <div class="pg-h">Copy de Anuncio</div>
+  <div class="pg-s">3 versoes com abordagens diferentes. Pronto para veicular.</div>
+  <div class="g2">
+    <div class="card">
+      <label>Objetivo</label>
+      <select id="an-o"><option>Cadastro PPPoker via CPC</option><option>Satelite KSOP</option><option>Publico novo</option><option>Reativar jogadores</option></select>
+      <label>Canal</label>
+      <select id="an-c"><option>Feed Instagram</option><option>Stories anuncio</option><option>Reels</option></select>
+      <label>Detalhe adicional</label>
+      <input id="an-d" type="text" placeholder="Ex: KSOP Manaus, R$70, qua e qui 20h...">
+      <button class="btn btn-r btn-full" onclick="gerarAnuncio()">GERAR 3 COPYS</button>
+    </div>
+    <div class="card">
+      <div class="out" id="an-out"><span class="ph">3 versoes com headline, descricao e CTA.</span></div>
+      <div class="out-act" id="an-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('an-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="gerarAnuncio()">NOVAS VERSOES</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-finalizar" class="panel">
+  <div class="pg-h">Finalizar Post</div>
+  <div class="pg-s">Voce tem uma ideia ou rascunho. O sistema aponta o que melhorar e entrega o post finalizado.</div>
+  <div class="g2">
+    <div class="card">
+      <label>Sua ideia ou rascunho</label>
+      <textarea id="fin-ideia" style="height:100px" placeholder="Descreva sua ideia, cole seu rascunho de texto, descreva a imagem que tem..."></textarea>
+      <label>Formato</label>
+      <select id="fin-fmt"><option>Feed</option><option>Story</option><option>Carrossel</option><option>Reels</option></select>
+      <label>Canal</label>
+      <select id="fin-canal"><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select>
+      <label>O que esta travado (opcional)</label>
+      <input id="fin-trava" type="text" placeholder="Ex: nao sei como comecar, legenda longa...">
+      <button class="btn btn-r btn-full" onclick="finalizarPost()">FINALIZAR POST</button>
+    </div>
+    <div class="card">
+      <div class="out" id="fin-out" style="min-height:200px"><span class="ph">Analise e post finalizado aparecera aqui.</span></div>
+      <div class="out-act" id="fin-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('fin-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="finalizarPost()">OUTRA VERSAO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-copa" class="panel">
+  <div class="pg-h">Copa do Mundo x Poker</div>
+  <div class="pg-s">A maior audiencia do mundo encontra o maior jogo de estrategia. Conteudo CPC que conecta os dois universos.</div>
+  <div class="g2">
+    <div class="card">
+      <label>Momento</label>
+      <select id="copa-ctx">
+        <option>Geral — campanha ao longo da Copa</option>
+        <option>Pre-jogo — antes de uma partida grande</option>
+        <option>Pos-jogo — resultado e repercussao</option>
+        <option>Jogo do Brasil</option>
+        <option>Final da Copa</option>
+      </select>
+      <label>Tom</label>
+      <select id="copa-tom">
+        <option>Humor — meme e leveza</option>
+        <option>Analogia — paralelo entre os jogos</option>
+        <option>Motivacional — energia de competicao</option>
+        <option>Cultural — momento e relevancia</option>
+      </select>
+      <label>Detalhe (opcional)</label>
+      <input id="copa-det" type="text" placeholder="Ex: Brasil perdeu, jogo hoje as 16h...">
+      <button class="btn btn-r btn-full" onclick="gerarCopa()">GERAR IDEIAS</button>
+    </div>
+    <div class="card">
+      <div class="out" id="copa-out" style="min-height:200px"><span class="ph">Ideias conectando Copa e poker no tom CPC.</span></div>
+      <div class="out-act" id="copa-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('copa-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="gerarCopa()">NOVAS IDEIAS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-ideias" class="panel">
+  <div class="pg-h">Banco de Ideias</div>
+  <div class="pg-s">Gere um banco de ideias para a semana.</div>
+  <div class="card">
+    <label>Foco da semana</label>
+    <input id="id-foco" type="text" placeholder="Ex: KSOP Manaus, comunidade, satelites...">
+    <label>Quantidade</label>
+    <select id="id-qtd"><option value="5">5 ideias</option><option value="10" selected>10 ideias</option></select>
+    <button class="btn btn-r btn-full" onclick="gerarIdeias()">GERAR BANCO DE IDEIAS</button>
+  </div>
+  <div class="out" id="id-out" style="min-height:150px"><span class="ph">Ideias com tipo, angulo, legenda e prompt apareceram aqui.</span></div>
+  <div class="out-act" id="id-act" style="display:none">
+    <button class="btn btn-g" onclick="cpEl('id-out')">COPIAR</button>
+    <button class="btn btn-g" onclick="gerarIdeias()">NOVAS IDEIAS</button>
+  </div>
+</div>
+
+<div id="p-calendario" class="panel">
+  <div class="pg-h">Calendario Editorial</div>
+  <div class="pg-s">Planejamento semanal por dia.</div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <label>Dia</label>
+      <select id="cal-dia"><option value="seg">Segunda</option><option value="ter">Terca</option><option value="qua">Quarta</option><option value="qui">Quinta</option><option value="sex">Sexta</option><option value="sab">Sabado</option><option value="dom">Domingo</option></select>
+      <label>Tipo</label>
+      <select id="cal-tipo"><option value="ev-s">Stories</option><option value="ev-f">Feed</option><option value="ev-r">Reels</option><option value="ev-c">Carrossel</option><option value="ev-k">Satelite KSOP</option></select>
+      <label>Tema</label>
+      <input id="cal-tema" type="text" placeholder="Ex: meme de segunda, satelite 20h...">
+      <button class="btn btn-r btn-full" onclick="addCal()">ADICIONAR</button>
+      <button class="btn btn-g btn-full" style="margin-top:6px" onclick="gerarSemana()">AUTO-PREENCHER SEMANA</button>
+    </div>
+    <div class="card" style="font-size:11px;color:var(--w2);line-height:2">
+      <span style="color:#ff9090">&#9632;</span> Stories — todo dia 8h<br>
+      <span style="color:var(--w2)">&#9632;</span> Feed — seg, qua, sex, dom<br>
+      <span style="color:#9898ff">&#9632;</span> Reels — qui, sab<br>
+      <span style="color:#80cc80">&#9632;</span> Carrossel — ter<br>
+      <span style="color:#ffcccc">&#9632;</span> Satelite KSOP — qua, qui, dom<br><br>
+      <button class="btn btn-g" style="font-size:9px" onclick="limparCal()">LIMPAR</button>
+    </div>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-head">
+      <div class="cal-hc">Hora</div>
+      <div class="cal-hc">Seg</div><div class="cal-hc">Ter</div><div class="cal-hc">Qua</div>
+      <div class="cal-hc">Qui</div><div class="cal-hc">Sex</div><div class="cal-hc">Sab</div><div class="cal-hc">Dom</div>
+    </div>
+    <div id="cal-body"></div>
+  </div>
+</div>
+
+<div id="p-inspiracao" class="panel">
+  <div class="pg-h">Board de Referencias</div>
+  <div class="pg-s">Suba designs prontos. O sistema gera versao adaptada com textos CPC.</div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="inspo-zone" onclick="document.getElementById('inspo-up').click()">
+          <div style="font-size:22px;color:var(--w4)">+</div>
+          <p>Upload de design ou layout</p>
+          <small>Posts, referencias, modelos</small>
+        </div>
+        <input type="file" id="inspo-up" accept="image/*" multiple style="display:none" onchange="addInspoFile(this)">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="inspo-url" type="text" placeholder="Ou cole URL..." style="flex:1">
+          <button class="btn btn-g" onclick="addInspoUrl()">ADD</button>
+        </div>
+        <div class="inspo-grid" id="inspo-grid"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <label>O que quer manter do layout</label>
+        <textarea id="inspo-gostou" style="height:60px" placeholder="Ex: tipografia grande, dois blocos, icones..."></textarea>
+        <label>Tema CPC</label>
+        <textarea id="inspo-tema" style="height:60px" placeholder="Ex: satelite KSOP, motivacional, comunidade..."></textarea>
+        <label>Formato</label>
+        <select id="inspo-fmt"><option>Story 9:16</option><option>Feed 1:1</option><option>Carrossel 4:5</option></select>
+        <button class="btn btn-r btn-full" onclick="gerarVersaoCPC()">ADAPTAR PARA CPC</button>
+      </div>
+      <div class="out" id="inspo-out"><span class="ph">Versao adaptada com textos CPC.</span></div>
+      <div class="out-act" id="inspo-act" style="display:none">
+        <button class="btn btn-g" onclick="cpEl('inspo-out')">COPIAR</button>
+        <button class="btn btn-g" onclick="gerarVersaoCPC()">NOVA VERSAO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-memoria" class="panel">
+  <div class="pg-h">Memoria CPC</div>
+  <div class="pg-s">Salve informacoes que serao usadas em toda geracao de conteudo.</div>
+  <div class="g2">
+    <div class="card">
+      <label>Categoria</label>
+      <select id="mem-cat"><option value="marca">Marca</option><option value="satelite">Satelite</option><option value="publico">Publico</option><option value="visual">Visual</option><option value="outro">Outro</option></select>
+      <label>Informacao</label>
+      <textarea id="mem-val" style="height:80px" placeholder="Ex: Satelite KSOP qua e qui R$70, 2 vagas GTD..."></textarea>
+      <button class="btn btn-r btn-full" onclick="addMem()">SALVAR NA MEMORIA</button>
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--w3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Memoria atual</div>
+      <div id="mem-lista"><p style="font-size:12px;color:var(--w4)">Nenhuma informacao salva ainda.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="p-voz" class="panel">
+  <div class="pg-h">Voz da Marca CPC</div>
+  <div class="pg-s">Manual de linguagem — consulte sempre.</div>
+  <div class="g2">
+    <div>
+      <div class="voz-block"><div class="voz-h">Identidade Visual</div>
+        <div style="font-size:13px;color:var(--w2);line-height:1.7">Vermelho #CC0000 predominante · Preto · Branco<br>Cinematografico · Premium · Minimalista · Performance<br>Pessoas reais. Nunca renders artificiais. Nunca casino ao vivo.</div>
+      </div>
+      <div class="voz-block"><div class="voz-h">7 Palavras-Chave da Marca</div>
+        <div style="font-size:13px;color:var(--red);line-height:2">vermelho · preto · premium · cinematografico · minimalista · performance · conexao · elite · evolucao</div>
+      </div>
+      <div class="voz-block"><div class="voz-h">Estrutura de Legenda</div>
+        <div style="font-size:13px;color:var(--w2);line-height:1.85">
+          <span style="color:var(--red)">Gancho</span> — 1 linha forte, para o scroll<br>
+          <span style="color:var(--red)">Corpo</span> — 1 a 3 linhas humanas<br>
+          <span style="color:var(--red)">Encerramento</span> — ponto final. Sempre.
+        </div>
+        <div class="voz-ex">"De R$70 ao Main Event. A conta fecha."</div>
+        <div class="voz-ex">"Uma partida aqui. Uma vaga em Manaus."</div>
+        <div class="voz-ex">"Blefe nao e mentira. E leitura."</div>
+      </div>
+    </div>
+    <div>
+      <div class="voz-block"><div class="voz-h">Nunca Usa</div>
+        <div style="font-size:13px;color:var(--w2);line-height:1.9">x "Voce consegue!" — coach energy<br>x Exclamacoes em excesso<br>x Casino fisico, feltro, poker ao vivo<br>x Renders artificiais<br>x Comunicacao generica</div>
+      </div>
+      <div class="voz-block"><div class="voz-h">Sempre Presente</div>
+        <div style="font-size:13px;color:var(--w2);line-height:1.9">+ PPPoker — sempre contextualizado<br>+ KSOP — parceria ate final 2025<br>+ Vermelho na descricao visual<br>+ "Do setup ao salao do KSOP"<br>+ Consistencia total — todo post e reconhecivel como CPC</div>
+      </div>
+      <div class="voz-block"><div class="voz-h">Satelite — A Narrativa Certa</div>
+        <div style="font-size:13px;color:var(--w2);line-height:1.7">O jogador nao COMPRA vaga — ele CONQUISTA.<br>Isso cria orgulho, engajamento, vontade de voltar.</div>
+        <div class="voz-ex">"Voce nao paga pra jogar grande. Voce joga pra chegar la."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+<div class="notif" id="notif-el"></div>
+<script>
+// ===== STORAGE =====
+var S = {
+  get: function(k) { try { return JSON.parse(localStorage.getItem('cpc_'+k)||'null'); } catch(e) { return null; } },
+  set: function(k,v) { localStorage.setItem('cpc_'+k, JSON.stringify(v)); },
+  push: function(k,v) { var a=S.get(k)||[]; a.push(v); S.set(k,a); return a; },
+  del: function(k,i) { var a=S.get(k)||[]; a.splice(i,1); S.set(k,a); return a; }
+};
+
+// ===== GEMINI =====
+var GEMINI_KEY = 'AIzaSyDEWRlz4pFTTv5mFxOqTgGK2zER3FLzszc';
+
+function getVoz() {
+  var mem = (S.get('memoria')||[]).map(function(m){ return '['+m.cat.toUpperCase()+'] '+m.val; }).join('\n');
+  return 'MARCA CPC: Clube poker online 5 anos, PPPoker. Cores: vermelho #CC0000 predominante, preto, branco. Tom: direto, humano, confiante. Sem coach energy. Ponto final e poder. Satelite KSOP: jogador conquista vaga — R$70 qua/qui 2 vagas GTD, R$200 dom 1 pacote, credito valido qualquer edicao. Parceria KSOP ate final 2025. Visual: pessoas reais, cinematografico, nunca casino ao vivo.' + (mem ? '\nMEMORIA: '+mem : '');
+}
+
+function callGemini(prompt, outId, actId) {
+  setOut(outId, '<span class="loading-txt">Gerando...</span>', null);
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
+  var body = JSON.stringify({
+    contents: [{ parts: [{ text: getVoz() + '\n\n' + prompt }] }],
+    generationConfig: { temperature: 0.95, maxOutputTokens: 2048 }
+  });
+  fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { setOut(outId, 'Erro Gemini: ' + d.error.message + '\n\n' + getFallback(prompt), actId); }
+      else { setOut(outId, d.candidates[0].content.parts[0].text, actId); }
+    })
+    .catch(function(e) { setOut(outId, getFallback(prompt), actId); });
+}
+
+// ===== FALLBACK LOCAL =====
+var _seed = 0;
+function nextSeed() { return ++_seed; }
+
+function getFallback(prompt) {
+  var s = nextSeed();
+  var p = (prompt || '').toLowerCase();
+  var isSat = /satelit|ksop/.test(p);
+  var isCopa = /copa|futebol/.test(p);
+
+  var legs = isSat ? [
+    'R$70 nao compra muito.\nMas no PPPoker pela CPC, R$70 pode te colocar no Main Event do KSOP.\n\nNao e magica. E satelite.',
+    'Ele nao comprou a vaga.\nEle jogou. Cravou. Conquistou.\n\nSatelite toda semana no PPPoker pela CPC.',
+    'Uma partida aqui.\nUma vaga no KSOP.\n\nCrave o satelite na CPC — credito valido em qualquer edicao do circuito.'
+  ] : isCopa ? [
+    'No futebol, o melhor time nem sempre vence.\nNo poker, o melhor jogador quase sempre vence.\n\nA diferenca? Aqui habilidade decide.\nNo PPPoker com a CPC.',
+    'Penalti e blefe.\nO batedor decide antes de chutar.\nO goleiro tenta ler a decisao.\n\nNo poker voce faz isso toda mao. PPPoker.',
+    '32 selecoes entram. 1 levanta a taca.\nCentenas entram no torneio. 1 crava.\n\nEntra no PPPoker pela CPC. Sua Copa comeca aqui.'
+  ] : [
+    'Poker online nao e o que voce pensa.\nNao e sorte. Nao e cassino.\n\nE leitura. Timing. Decisao.\nNo PPPoker com a CPC.',
+    'Do setup em casa ao salao do KSOP.\n\nEssa distancia e menor do que parece.\nA CPC e a ponte.',
+    'Blefe nao e mentira. E leitura.\n\nQuem conhece o jogo, conhece pessoas.\nNo PPPoker voce aprende isso toda semana.'
+  ];
+
+  var visuals = [
+    'Pessoa focada no celular, luz vermelha de LED, quarto escuro. Real e intimista.',
+    'Ficha unica em close, luz vermelha lateral intensa, fundo preto. Minimalismo premium.',
+    'Split screen esfumacado — setup em casa esquerda, salao de torneio direita. Vermelho como transicao.'
+  ];
+
+  var leg = legs[s % legs.length];
+  var vis = visuals[s % visuals.length];
+
+  return 'LEGENDA:\n' + leg + '\n\nSUGESTAO VISUAL:\n' + vis + '\n\nDICA CRIATIVA:\nAdicione seu contexto especifico no campo de texto para gerar conteudo personalizado ao seu tema.';
+}
+
+// ===== HELPERS =====
+var tomSel = 'direto';
+function selTom(t) {
+  document.querySelectorAll('[id^="tom-"]').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('tom-'+t).classList.add('on');
+  tomSel = t;
+}
+
+function navTo(id) {
+  document.querySelectorAll('.sb-item').forEach(function(el){ el.classList.remove('on'); });
+  document.querySelectorAll('.panel').forEach(function(el){ el.classList.remove('on'); });
+  var navEl = document.getElementById('nav-'+id);
+  if (navEl) navEl.classList.add('on');
+  var panelEl = document.getElementById('p-'+id);
+  if (panelEl) panelEl.classList.add('on');
+  if (id === 'calendario') renderCal();
+  if (id === 'memoria') renderMem();
+  if (id === 'inspiracao') renderInspo();
+}
+
+function itabTo(group, id, el) {
+  var parent = el.closest('.panel');
+  parent.querySelectorAll('.itab').forEach(function(t){ t.classList.remove('on'); });
+  parent.querySelectorAll('.ipanel').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  document.getElementById(group+'-'+id).classList.add('on');
+}
+
+function notif(msg) {
+  var el = document.getElementById('notif-el');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+function cpEl(id) {
+  var txt = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(txt).then(function(){ notif('Copiado!'); });
+}
+
+function setOut(id, html, actId) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = html.replace ? html.replace(/\n/g,'<br>') : html;
+  if (actId) document.getElementById(actId).style.display = 'flex';
+}
+
+function getVal(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+function getOptTxt(id) { var el = document.getElementById(id); return el ? el.options[el.selectedIndex].text : ''; }
+
+// ===== GERADORES =====
+function gerarPost() {
+  var tipo = getOptTxt('g-tipo');
+  var fmt = getOptTxt('g-fmt');
+  var ctx = getVal('g-ctx');
+  var p = 'Crie conteudo para a CPC.\nTIPO: ' + tipo + '\nFORMATO: ' + fmt + '\nTOM: ' + tomSel + '\nCONTEXTO DO USUARIO: ' + (ctx || 'poker online PPPoker comunidade CPC') + '\n\nResponda EXATAMENTE ao contexto enviado. Entregue:\nLEGENDA: [texto completo — gancho / corpo / encerramento com ponto final]\nSUGESTAO VISUAL: [2-3 linhas — cinematografico, paleta vermelho+preto+branco]\nPROMPT DE IMAGEM: [em ingles para Midjourney — fotorrealista, deep red, black, white]\nDICA CRIATIVA: [angulo alternativo]';
+  callGemini(p, 'g-out', 'g-act');
+}
+
+function gerarStories() {
+  var ctx = getVal('st-ctx');
+  var tom = getOptTxt('st-tom');
+  var ev = getVal('st-ev');
+  var qtd = getVal('st-qtd');
+  var p = 'Crie ' + qtd + ' versao(oes) de story para a CPC seguindo o MODELO FIXO:\n- Fundo preto, fichas e cartas em vermelho\n- HEADLINE: 3 linhas (branco / VERMELHO / branco)\n- ICONE + FRASE DE APOIO\n- 3 ICONES COM PALAVRAS\n- RODAPE com naipes e frase vermelha\n\nTOM: ' + tom + '\nCONTEXTO: ' + (ctx || 'evolucao e disciplina') + (ev ? '\nEVENTO: ' + ev : '') + '\n\nPara cada versao entregue exatamente:\nVERSAO [n]\nHEADLINE:\n  Linha 1 (branco): [texto]\n  Linha 2 (VERMELHO): [palavra impacto]\n  Linha 3 (branco): [texto]\nICONE + APOIO: [emoji] "[frase]"\n3 ICONES: [emoji] PALAVRA | [emoji] PALAVRA | [emoji] PALAVRA\nRODAPE: ss dd cc hh [FRASE.]\nVISUAL: [descricao fundo]';
+  callGemini(p, 'st-out', 'st-act');
+}
+
+function gerarCarrossel() {
+  var tema = getVal('car-tema') || 'conexao que o poker online cria';
+  var slides = getVal('car-slides');
+  var obj = getOptTxt('car-obj');
+  var vis = getOptTxt('car-vis');
+  var p = 'Carrossel completo para a CPC.\nTEMA EXATO: ' + tema + '\nSLIDES: ' + slides + '\nOBJETIVO: ' + obj + '\nESTILO: ' + vis + '\n\nPara cada slide:\nSLIDE [n] — [titulo]\nINSTRUCAO DESIGNER: [como montar — hierarquia, posicao, espaco negativo]\nHEADLINE: [frase principal]\nSUBTEXTO: [1-3 linhas]\nRODAPE: [max 15 palavras]\nPROMPT IMAGEM: [ingles, red+black+white CPC, 4:5]\n\nAo final:\nLEGENDA DO POST: [texto unico desenvolvido nesse tema — so uma legenda]';
+  callGemini(p, 'car-out', 'car-act');
+}
+
+function gerarCanal(canal) {
+  var configs = {
+    ig: function() { return { p: 'Post Instagram Feed CPC.\nTEMA: ' + getVal('ig-t') + '\nESTILO: ' + getOptTxt('ig-e') + '\nEntregue: LEGENDA / SUGESTAO VISUAL / PROMPT IMAGEM (ingles 1:1 CPC) / HASHTAGS', out: 'ig-out', act: 'ig-act' }; },
+    rl: function() { return { p: 'Roteiro Reels CPC.\nGANCHO: ' + getVal('rl-t') + '\nDURACAO: ' + getOptTxt('rl-d') + '\nESTILO: ' + getOptTxt('rl-e') + '\nEntregue: CENAS com segundagem / NARRACAO / SOM / PROMPT VISUAL (ingles 9:16) / LEGENDA / HASHTAGS', out: 'rl-out', act: 'rl-act' }; },
+    tt: function() { return { p: 'TikTok CPC.\nGANCHO: ' + getVal('tt-t') + '\nFORMATO: ' + getOptTxt('tt-f') + '\nEntregue: GANCHO 3s / ROTEIRO / SOM / PROMPT (9:16) / LEGENDA / HASHTAGS VIRAIS', out: 'tt-out', act: 'tt-act' }; },
+    yt: function() { return { p: 'YouTube CPC.\nTEMA: ' + getVal('yt-t') + '\nFORMATO: ' + getOptTxt('yt-f') + '\nEntregue: TITULO / DESCRICAO / ROTEIRO / PROMPT THUMBNAIL (16:9) / TAGS', out: 'yt-out', act: 'yt-act' }; },
+    li: function() { return { p: 'LinkedIn CPC.\nTEMA: ' + getVal('li-t') + '\nANGULO: ' + getOptTxt('li-a') + '\nTom profissional-humano. Poker como desenvolvimento.\nEntregue: POST COMPLETO / SUGESTAO VISUAL / HASHTAGS', out: 'li-out', act: 'li-act' }; }
+  };
+  var cfg = configs[canal] ? configs[canal]() : null;
+  if (cfg) callGemini(cfg.p, cfg.out, cfg.act);
+}
+
+function gerarAnuncio() {
+  var p = '3 versoes de copy de anuncio CPC.\nOBJETIVO: ' + getOptTxt('an-o') + '\nCANAL: ' + getOptTxt('an-c') + '\nDETALHES: ' + (getVal('an-d') || 'nenhum') + '\n\nCada versao diferente (emocional / racional / provocativo):\nVERSAO [n] — [abordagem]\nHEADLINE: [ate 8 palavras]\nDESCRICAO: [2-4 linhas CPC]\nCTA: [direto]\nPROMPT VISUAL: [ingles CPC red+black]';
+  callGemini(p, 'an-out', 'an-act');
+}
+
+function finalizarPost() {
+  var ideia = getVal('fin-ideia');
+  if (!ideia) { notif('Descreva sua ideia primeiro'); return; }
+  var p = 'Analise e finalize este post para a CPC.\n\nIDEIA DO USUARIO:\n"' + ideia + '"\n\nFORMATO: ' + getOptTxt('fin-fmt') + '\nCANAL: ' + getOptTxt('fin-canal') + (getVal('fin-trava') ? '\nTRAVADO EM: ' + getVal('fin-trava') : '') + '\n\nResponda SOBRE o que foi descrito. Entregue:\nO QUE ESTA BOM: [pontos positivos especificos]\nO QUE MELHORAR: [3 pontos concretos]\nPOST FINALIZADO:\n[legenda completa no tom CPC desenvolvida a partir da ideia dele]\nDICA FINAL: [1 insight especifico]';
+  callGemini(p, 'fin-out', 'fin-act');
+}
+
+function gerarCopa() {
+  var p = 'Crie 5 ideias de conteudo para a CPC conectando Copa do Mundo e Poker.\nMOMENTO: ' + getOptTxt('copa-ctx') + '\nTOM: ' + getOptTxt('copa-tom') + (getVal('copa-det') ? '\nDETALHE: ' + getVal('copa-det') : '') + '\n\nRegras: CPC e clube poker ONLINE PPPoker. Conecte os dois universos genuinamente. Poker e o fio condutor.\n\nPara cada ideia:\nIDEIA [n] — [titulo]\nFORMATO: [tipo]\nCONCEITO: [conexao Copa + poker]\nLEGENDA: [texto completo tom CPC]\nSUGESTAO VISUAL: [cinematografico, paleta CPC]\nMELHOR MOMENTO: [quando postar]';
+  callGemini(p, 'copa-out', 'copa-act');
+}
+
+function gerarIdeias() {
+  var foco = getVal('id-foco');
+  var qtd = getVal('id-qtd');
+  var p = 'Gere ' + qtd + ' ideias de conteudo para a CPC.\nFOCO: ' + (foco || 'PPPoker, KSOP, comunidade, conexao') + '\n\nPara cada ideia:\nIDEIA [n] — [titulo criativo]\nTIPO: [formato]\nANGULO: [o que torna unica]\nLEGENDA: [versao curta tom CPC]\nPROMPT IMAGEM: [ingles CPC red+black]\n\nVariar formatos e tons. Todas conectadas ao foco.';
+  callGemini(p, 'id-out', 'id-act');
+}
+
+function gerarVersaoCPC() {
+  var gostou = getVal('inspo-gostou');
+  var tema = getVal('inspo-tema');
+  var fmt = getOptTxt('inspo-fmt');
+  if (!tema && !gostou) { notif('Descreva o tema ou o que gostou'); return; }
+  var p = 'Adapte layout de referencia para a CPC.\nELEMENTOS A MANTER: ' + (gostou || 'estrutura geral') + '\nTEMA CPC: ' + (tema || 'poker online conexao') + '\nFORMATO: ' + fmt + '\n\nEntregue:\nANALISE DO LAYOUT: [o que funciona — 3 pontos]\nVERSAO CPC:\nHEADLINE: [adaptado para CPC]\nAPOIO: [texto secundario]\nICONES: [3 elementos]\nRODAPE: [frase CPC]\nLEGENDA DO POST: [texto completo]\nINSTRUCAO DESIGNER: [como executar com paleta CPC]';
+  callGemini(p, 'inspo-out', 'inspo-act');
+}
+
+function saveIdeia() {
+  var txt = document.getElementById('g-out').innerText;
+  if (!txt || txt.length < 20) return;
+  S.push('ideias_salvas', { txt: txt, ts: Date.now() });
+  notif('Ideia salva!');
+}
+
+// ===== CALENDARIO =====
+function addCal() {
+  var dia = getVal('cal-dia');
+  var tipo = getVal('cal-tipo');
+  var tema = getVal('cal-tema');
+  if (!tema) { notif('Adicione um tema'); return; }
+  var ev = S.get('cal') || {};
+  if (!ev[dia]) ev[dia] = [];
+  ev[dia].push({ tipo: tipo, tema: tema });
+  S.set('cal', ev);
+  document.getElementById('cal-tema').value = '';
+  renderCal();
+  notif('Adicionado!');
+}
+
+function gerarSemana() {
+  S.set('cal', {
+    seg: [{tipo:'ev-s',tema:'Motivacional PPPoker'},{tipo:'ev-f',tema:'Interacao — pergunta'}],
+    ter: [{tipo:'ev-s',tema:'Reflexivo decisao'},{tipo:'ev-c',tema:'Carrossel educativo'}],
+    qua: [{tipo:'ev-s',tema:'Desafiador'},{tipo:'ev-f',tema:'Relevancia cultural'},{tipo:'ev-k',tema:'Satelite KSOP R$70'}],
+    qui: [{tipo:'ev-s',tema:'Leve humorado'},{tipo:'ev-r',tema:'Reels meme'},{tipo:'ev-k',tema:'Satelite KSOP R$70'}],
+    sex: [{tipo:'ev-s',tema:'Humano vulneravel'},{tipo:'ev-f',tema:'Lifestyle CPC'}],
+    sab: [{tipo:'ev-s',tema:'Motivacional fds'},{tipo:'ev-r',tema:'Reels bastidores'}],
+    dom: [{tipo:'ev-s',tema:'Reflexivo'},{tipo:'ev-k',tema:'Satelite KSOP R$200'},{tipo:'ev-f',tema:'Brand CPC'}]
+  });
+  renderCal();
+  notif('Semana preenchida!');
+}
+
+function limparCal() { S.set('cal', {}); renderCal(); notif('Limpo'); }
+
+function renderCal() {
+  var ev = S.get('cal') || {};
+  var dias = ['seg','ter','qua','qui','sex','sab','dom'];
+  var maxR = 1;
+  dias.forEach(function(d){ if ((ev[d]||[]).length > maxR) maxR = (ev[d]||[]).length; });
+  var html = '';
+  for (var r = 0; r < maxR; r++) {
+    html += '<div class="cal-row"><div class="cal-time">' + (r === 0 ? '8h+' : '') + '</div>';
+    dias.forEach(function(d, di) {
+      var e = (ev[d]||[])[r];
+      html += '<div class="cal-cell">';
+      if (e) html += '<div class="cal-ev ' + e.tipo + '" onclick="delCal('' + d + '',' + r + ')" title="Remover">' + e.tema + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+  document.getElementById('cal-body').innerHTML = html;
+}
+
+function delCal(dia, idx) {
+  var ev = S.get('cal') || {};
+  if (ev[dia]) { ev[dia].splice(idx, 1); S.set('cal', ev); renderCal(); }
+}
+
+// ===== REFERENCIAS =====
+var inspoRefs = [];
+
+function addInspoFile(input) {
+  Array.from(input.files).forEach(function(f) {
+    var r = new FileReader();
+    r.onload = function(e) { inspoRefs.push({ src: e.target.result, note: '' }); renderInspo(); };
+    r.readAsDataURL(f);
+  });
+  input.value = '';
+}
+
+function addInspoUrl() {
+  var url = getVal('inspo-url').trim();
+  if (!url) return;
+  inspoRefs.push({ src: url, note: '' });
+  document.getElementById('inspo-url').value = '';
+  renderInspo();
+}
+
+function renderInspo() {
+  var grid = document.getElementById('inspo-grid');
+  grid.innerHTML = inspoRefs.map(function(r, i) {
+    return '<div class="inspo-item"><div class="inspo-img"><img src="' + r.src + '" onerror="this.style.background='var(--bg4)'"></div><button class="inspo-del" onclick="delInspo(' + i + ')">x</button><div class="inspo-note">' + (r.note || '') + '</div></div>';
+  }).join('');
+}
+
+function delInspo(i) { inspoRefs.splice(i, 1); renderInspo(); }
+
+// ===== MEMORIA =====
+function addMem() {
+  var cat = getVal('mem-cat');
+  var val = getVal('mem-val').trim();
+  if (!val) { notif('Escreva a informacao'); return; }
+  S.push('memoria', { cat: cat, val: val });
+  document.getElementById('mem-val').value = '';
+  renderMem();
+  notif('Salvo!');
+}
+
+function renderMem() {
+  var mem = S.get('memoria') || [];
+  var lista = document.getElementById('mem-lista');
+  if (!mem.length) { lista.innerHTML = '<p style="font-size:12px;color:var(--w4)">Nenhuma informacao salva.</p>'; return; }
+  lista.innerHTML = mem.map(function(m, i) {
+    return '<div class="mem-item"><div style="flex:1"><div class="mem-cat">' + m.cat + '</div><div class="mem-val">' + m.val + '</div></div><span class="mem-del" onclick="delMem(' + i + ')">x</span></div>';
+  }).join('');
+}
+
+function delMem(i) { S.del('memoria', i); renderMem(); notif('Removido'); }
+
+// ===== INIT =====
+renderCal();
+renderMem();
+</script>
+</body>
+</html>
